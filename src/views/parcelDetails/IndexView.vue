@@ -4,6 +4,15 @@
       <div class="row">
         <div class="col-lg-10 col-xxl-9 mx-auto">
           <form-wizard @hook:mounted="onfunction">
+            <template slot="footer" slot-scope="props">
+              <div class="wizard-footer-left" >
+                  <wizard-button id="prev-button" v-if="props.activeTabIndex > 0 && !props.isLastStep" @click.native="props.prevTab(); onPrevClick(props.activeTabIndex);" :style="props.fillButtonStyle">Previous</wizard-button>
+                </div>
+                <div class="wizard-footer-right">
+                  <wizard-button id="next-button" v-if="!props.isLastStep" @click.native="props.nextTab(); onNextClick(props.activeTabIndex)" class="wizard-footer-right" :style="props.fillButtonStyle" @click="decrement">Next</wizard-button>
+                  <wizard-button v-else @click.native=" onDone()" class="wizard-footer-right finish-button" :style="props.fillButtonStyle">  {{props.isLastStep ? 'Done' : 'Next'}}</wizard-button>
+                </div>
+              </template>
             <tab-content title="Parcel details">
               <div class="border rounded-10 p-4">
                 <div class="row mb-4">
@@ -11,103 +20,105 @@
                     <h4 class="text-gray">Shipment Details</h4>
                   </div>
                 </div>
-                <div class="row mb-4 mb-lg-5">
-                  <div class="col-12">
-                    <h5 class="font-semi-bold mb-3">Package size</h5>
-                    <swiper ref="mySwiper" :key="key" class="slider-file-2" :options="swiperOption">
-                      <swiper-slide v-for="(item, index) in items" :key="index">
-                        <label class="d-block pointer widget__package" :for="'package-' + index">
-                          <input class="d-none" type="radio" :id="'package-' + index" name="package">
-                          <div class="widget__item-file text-center border rounded-10 py-3">
-                            <div class="widget__item-image mb-3"><img :src="item.img" alt=""></div>
-                            <h5 class="widget__item-title mb-1">{{item.title}}</h5>
-                            <h6 class="widget__item-size text-gray font-medium">{{item.size}}</h6>
-                          </div>
-                        </label>
-                      </swiper-slide>
-                      <div class="swiper-button-prev" slot="button-prev">
-                        <i class="fas fa-chevron-left"></i>
-                      </div>
-                      <div class="swiper-button-next" slot="button-next">
-                        <i class="fas fa-chevron-right"></i>
-                      </div>
-                    </swiper>
+                <form>
+                  <div class="row mb-4 mb-lg-5">
+                    <div class="col-12">
+                      <h5 class="font-semi-bold mb-3">Package size</h5>
+                      <swiper ref="mySwiper" :key="key" class="slider-file-2" :options="swiperOption">
+                        <swiper-slide v-for="(item, index) in items" :key="index">
+                          <label class="d-block pointer widget__package" :for="'package-' + index">
+                            <input class="d-none" type="radio" @click="change(item.desc)" :id="'package-' + index" name="package">
+                            <div class="widget__item-file text-center border rounded-10 py-3">
+                              <div class="widget__item-image mb-3"><img :src="item.img" alt=""></div>
+                              <h5 class="widget__item-title mb-1">{{item.title}}</h5>
+                              <h6 class="widget__item-size text-gray font-medium">{{item.size}}</h6>
+                            </div>
+                          </label>
+                        </swiper-slide>
+                        <div class="swiper-button-prev" slot="button-prev">
+                          <i class="fas fa-chevron-left"></i>
+                        </div>
+                        <div class="swiper-button-next" slot="button-next">
+                          <i class="fas fa-chevron-right"></i>
+                        </div>
+                      </swiper>
+                    </div>
                   </div>
-                </div>
-                <div class="row mb-5">
-                  <div class="col-12">
-                    <h5 class="font-semi-bold mb-3">Weight and sizes</h5>
-                    <div class="row row-cols-lg-5 row-cols-sm-2 row-cols-md-3 row-cols-1">
-                      <div class="col">
-                        <div class="form-group">
-                          <label>Parcel weight</label>
-                          <div class="border rounded-10 d-flex overflow-hidden">
-                            <input class="form-control h-auto border-0" type="text" placeholder="00.0" />
-                            <div class="bg-gray font-medium px-2 d-flex align-items-center">Kg</div>
+                  <div class="row mb-5">
+                    <div class="col-12">
+                      <h5 class="font-semi-bold mb-3">Weight and sizes</h5>
+                      <div class="row row-cols-lg-5 row-cols-sm-2 row-cols-md-3 row-cols-1">
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Parcel weight</label>
+                            <div class="border rounded-10 d-flex overflow-hidden">
+                              <input id="weight" class="form-control h-auto border-0" type="text" required placeholder="00.0" />
+                              <div class="bg-gray font-medium px-2 d-flex align-items-center">Kg</div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div class="col">
-                        <div class="form-group">
-                          <label>Est. weight</label>
-                          <div class="border rounded-10 d-flex overflow-hidden">
-                            <input class="form-control h-auto border-0 rounded-0" type="text" disabled="disabled" value="5.00" />
-                            <div class="bg-gray font-medium px-2 d-flex align-items-center border-start">Kg</div>
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Max. weight</label>
+                            <div class="border rounded-10 d-flex overflow-hidden">
+                              <input id="est-weight" class="form-control h-auto border-0 rounded-0" if type="text" disabled="disabled" value="0-5" />
+                              <div class="bg-gray font-medium px-2 d-flex align-items-center border-start">Kg</div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div class="col">
-                        <div class="form-group">
-                          <label>Length</label>
-                          <div class="border rounded-10 d-flex overflow-hidden">
-                            <input class="form-control h-auto border-0 rounded-0" type="text" disabled="disabled" value="1.5" />
-                            <div class="bg-gray font-medium px-2 d-flex align-items-center border-start">cm</div>
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Length</label>
+                            <div class="border rounded-10 d-flex overflow-hidden">
+                              <input id="length" class="form-control h-auto border-0 rounded-0" type="text" disabled="disabled" value="1.5" />
+                              <div class="bg-gray font-medium px-2 d-flex align-items-center border-start">cm</div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div class="col">
-                        <div class="form-group">
-                          <label>Width</label>
-                          <div class="border rounded-10 d-flex overflow-hidden">
-                            <input class="form-control h-auto border-0 rounded-0" type="text" disabled="disabled" value="2.0" />
-                            <div class="bg-gray font-medium px-2 d-flex align-items-center border-start">cm</div>
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Width</label>
+                            <div class="border rounded-10 d-flex overflow-hidden">
+                              <input id="width" class="form-control h-auto border-0 rounded-0" type="text" disabled="disabled" value="2.0" />
+                              <div class="bg-gray font-medium px-2 d-flex align-items-center border-start">cm</div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div class="col">
-                        <div class="form-group">
-                          <label>Height</label>
-                          <div class="border rounded-10 d-flex overflow-hidden">
-                            <input class="form-control h-auto border-0 rounded-0" type="text" disabled="disabled" value="00.0" />
-                            <div class="bg-gray font-medium px-2 d-flex align-items-center border-start">cm</div>
+                        <div class="col">
+                          <div class="form-group">
+                            <label>Height</label>
+                            <div class="border rounded-10 d-flex overflow-hidden">
+                              <input id="height" class="form-control h-auto border-0 rounded-0" type="text" disabled="disabled" value="00.0" />
+                              <div class="bg-gray font-medium px-2 d-flex align-items-center border-start">cm</div>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div class="row">
-                  <div class="col-12">
-                    <h5 class="font-semi-bold mb-3">Weight and sizes</h5>
-                    <div class="row">
-                      <div class="col-lg-6">
-                        <div class="form-group">
-                          <label>Parcel Value </label>
-                          <div class="border rounded-10 d-flex overflow-hidden">
-                            <input class="form-control h-auto border-0" type="text" placeholder="00.0" />
-                            <div class="bg-gray font-medium px-2 d-flex align-items-center">Kg</div>
+                  <div class="row">
+                    <div class="col-12">
+                      <h5 class="font-semi-bold mb-3">Weight and sizes</h5>
+                      <div class="row">
+                        <div class="col-lg-6">
+                          <div class="form-group">
+                            <label>Parcel Value </label>
+                            <div class="border rounded-10 d-flex overflow-hidden">
+                              <input id="parcel-value" class="form-control h-auto border-0" type="text" placeholder="00.0" required />
+                              <div class="bg-gray font-medium px-2 d-flex align-items-center">$</div>
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <textarea id="description" class="form-control p-3 rounded-10" rows="3" placeholder="describe your Parcel..." required></textarea>
                           </div>
                         </div>
-                        <div class="form-group">
-                          <textarea class="form-control p-3 rounded-10" rows="3" placeholder="describe your Parcel..."></textarea>
+                        <div class="col-lg-6">
+                          <vue-dropzone ref="myVueDropzone" class="myDropzone dropzone" id="dropzone" :options="dropzoneOptions"></vue-dropzone>
                         </div>
-                      </div>
-                      <div class="col-lg-6">
-                        <vue-dropzone ref="myVueDropzone" class="myDropzone dropzone" id="dropzone" :options="dropzoneOptions"></vue-dropzone>
                       </div>
                     </div>
                   </div>
-                </div>
+                </form>
               </div>
             </tab-content>
             <tab-content title="Shipment Details">
@@ -150,25 +161,16 @@
                       </h5>
                     </div>
                   </div>
-                  <div class="col-12">
-                    <label class="m-checkbox"> <input type="checkbox" name="checkbox"><span class="checkmark"></span><span class="text-blue">I'm the sender, Autofill with my information.</span> </label>
-                  </div>
                   <div class="col-lg-4">
                     <div class="form-group">
                       <label>First Name</label>
-                      <input class="form-control font-medium" type="text" value="Adnan">
-                    </div>
-                  </div>
-                  <div class="col-lg-4">
-                    <div class="form-group">
-                      <label>Second Name </label>
-                      <input class="form-control font-medium" type="text" value="Adnan">
+                      <input id="firstName" class="form-control font-medium" type="text">
                     </div>
                   </div>
                   <div class="col-lg-4">
                     <div class="form-group">
                       <label>Last Name </label>
-                      <input class="form-control font-medium" type="text" value="Adnan">
+                      <input id="lastName" class="form-control font-medium" type="text">
                     </div>
                   </div>
                   <div class="col-lg-6">
@@ -176,21 +178,21 @@
                       <label>Phone No. </label>
                       <div class="input-group">
                         <div class="input-group-text p-0 border-0 bg-white">
-                          <v-select :options="options" label="title" class="select-country" placeholder="Phone">
+                          <v-select :options="options" label="title" class="select-country">
                             <template slot="option" slot-scope="option">
                                 <img :src="option.flag" />
                                 {{ option.title }}
                             </template>
                           </v-select>
                         </div>
-                        <input class="form-control" type="text" placeholder="59-0000000" />
+                        <input id="phone" class="form-control" type="text" />
                       </div>
                     </div>
                   </div>
                   <div class="col-lg-6">
                     <div class="form-group">
-                      <label>Email address</label>
-                      <input class="form-control font-medium" type="text" value="adnanafana0@gmail.com">
+                      <label>Sender address</label>
+                      <input id="sender-address" class="form-control font-medium" type="text" placeholder="Complete correct address">
                     </div>
                   </div>
                 </div>
@@ -203,19 +205,13 @@
                   <div class="col-lg-4">
                     <div class="form-group">
                       <label>First Name</label>
-                      <input class="form-control font-medium" type="text" value="Adnan">
-                    </div>
-                  </div>
-                  <div class="col-lg-4">
-                    <div class="form-group">
-                      <label>Second Name </label>
-                      <input class="form-control font-medium" type="text" value="Adnan">
+                      <input id="receiverFirst" class="form-control font-medium" type="text" placeholder="Adnan">
                     </div>
                   </div>
                   <div class="col-lg-4">
                     <div class="form-group">
                       <label>Last Name </label>
-                      <input class="form-control font-medium" type="text" value="Adnan">
+                      <input id="receiverLast" class="form-control font-medium" type="text" placeholder="Adnan">
                     </div>
                   </div>
                   <div class="col-lg-6">
@@ -230,14 +226,14 @@
                             </template>
                           </v-select>
                         </div>
-                        <input class="form-control" type="text" placeholder="59-0000000" />
+                        <input id="receiverPhone" class="form-control" type="text" placeholder="59-0000000" />
                       </div>
                     </div>
                   </div>
                   <div class="col-lg-6">
                     <div class="form-group">
-                      <label>Email address</label>
-                      <input class="form-control font-medium" type="text" value="adnanafana0@gmail.com">
+                      <label>Recepient Address</label>
+                      <input id="receiver-address" class="form-control font-medium" type="text" placeholder="Complete correct address">
                     </div>
                   </div>
                 </div>
@@ -260,7 +256,7 @@
                       </button>
                     </div>
                     <div class="col-12">
-                      <GmapMap :center='center' :zoom='12' style='width:100%;  height: 300px;' />
+                      <GmapMap :center='center' :zoom='12' style='width:100%;  height: 300px' />
                     </div>
                   </div>
                 </div>
@@ -380,84 +376,12 @@
                         </div>
                       </div>
                       <div class="col-12 col-lg-3 col-xxl-2 mt-2 mt-lg-0">
-                        <v-select :options="options" placeholder="Select a Street"></v-select>
+                        <input type="text" class="px-2" placeholder="Enter the company ID to select" id="companyID" style="border: 1px solid #fecb23; width: 280px; border-radius: 20px; height: 60px; margin-left: -100px">
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="row grid" style="position: relative; height: 525.562px;">
-                  <div class="col-sm-6 col-lg-4 col-xxl-3 grid-item item-4" style="position: absolute; left: 0px; top: 0px;">
-                    <div class="widget__item-company border rounded-10 mb-4">
-                      <div class="widget__item-image border-bottom"><img src="@/assets/images/partners/tnt.png" alt=""></div>
-                      <div class="widget__item-content p-3">
-                        <h4 class="mb-2 text-blue">00min:00hr:00d</h4>
-                        <div class="data-rating d-flex align-items-center data-rating-lg mb-4">
-                          <span class="d-flex" data-rating="3"><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i></span>
-                        </div>
-                        <h6 class="text-gray">$ pick address to get price</h6>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-lg-4 col-xxl-3 grid-item item-1" style="position: absolute; left: 299.984px; top: 0px;">
-                    <div class="widget__item-company border rounded-10 mb-4">
-                      <div class="widget__item-image border-bottom"><img src="@/assets/images/partners/tnt.png" alt=""></div>
-                      <div class="widget__item-content p-3">
-                        <h4 class="mb-2 text-blue">00min:00hr:00d</h4>
-                        <div class="data-rating d-flex align-items-center data-rating-lg mb-4">
-                          <span class="d-flex" data-rating="3"><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i></span>
-                        </div>
-                        <h6 class="text-gray">$ pick address to get price</h6>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-lg-4 col-xxl-3 grid-item item-3" style="position: absolute; left: 599.968px; top: 0px;">
-                    <div class="widget__item-company border rounded-10 mb-4">
-                      <div class="widget__item-image border-bottom"><img src="@/assets/images/partners/tnt.png" alt=""></div>
-                      <div class="widget__item-content p-3">
-                        <h4 class="mb-2 text-blue">00min:00hr:00d</h4>
-                        <div class="data-rating d-flex align-items-center data-rating-lg mb-4">
-                          <span class="d-flex" data-rating="3"><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i></span>
-                        </div>
-                        <h6 class="text-gray">$ pick address to get price</h6>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-lg-4 col-xxl-3 grid-item item-2" style="position: absolute; left: 0px; top: 262.781px;">
-                    <div class="widget__item-company border rounded-10 mb-4">
-                      <div class="widget__item-image border-bottom"><img src="@/assets/images/partners/tnt.png" alt=""></div>
-                      <div class="widget__item-content p-3">
-                        <h4 class="mb-2 text-blue">00min:00hr:00d</h4>
-                        <div class="data-rating d-flex align-items-center data-rating-lg mb-4">
-                          <span class="d-flex" data-rating="3"><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i></span>
-                        </div>
-                        <h6 class="text-gray">$ pick address to get price</h6>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-lg-4 col-xxl-3 grid-item item-4" style="position: absolute; left: 299.984px; top: 262.781px;">
-                    <div class="widget__item-company border rounded-10 mb-4">
-                      <div class="widget__item-image border-bottom"><img src="@/assets/images/partners/tnt.png" alt=""></div>
-                      <div class="widget__item-content p-3">
-                        <h4 class="mb-2 text-blue">00min:00hr:00d</h4>
-                        <div class="data-rating d-flex align-items-center data-rating-lg mb-4">
-                          <span class="d-flex" data-rating="3"><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i></span>
-                        </div>
-                        <h6 class="text-gray">$ pick address to get price</h6>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-6 col-lg-4 col-xxl-3 grid-item item-1" style="position: absolute; left: 599.968px; top: 262.781px;">
-                    <div class="widget__item-company border rounded-10 mb-4">
-                      <div class="widget__item-image border-bottom"><img src="@/assets/images/partners/tnt.png" alt=""></div>
-                      <div class="widget__item-content p-3">
-                        <h4 class="mb-2 text-blue">00min:00hr:00d</h4>
-                        <div class="data-rating d-flex align-items-center data-rating-lg mb-4">
-                          <span class="d-flex" data-rating="3"><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i></span>
-                        </div>
-                        <h6 class="text-gray">$ pick address to get price</h6>
-                      </div>
-                    </div>
-                  </div>
+                <div class="row grid py-3 justify-content-center" id="company-area" style="position: relative; height: 525.562px; overflow-y: scroll;">
                 </div>
               </div>
             </tab-content>
@@ -496,11 +420,11 @@
                           </div>
                           <div class="d-flex align-items-cetner">
                             <div class="text-gray-2 font-medium">, weight:</div>
-                            <div class="text-blue font-medium">5 Kg</div>
+                            <div class="text-blue font-medium">{{ parcelWeight }} Kg</div>
                           </div>
                           <div class="d-flex align-items-cetner">
                             <div class="text-gray-2 font-medium">, value:</div>
-                            <div class="text-blue font-medium">20 AED</div>
+                            <div class="text-blue font-medium">{{ value }}AED</div>
                           </div>
                         </div>
                         <button class="btn btn-link-blue p-2">
@@ -529,27 +453,25 @@
                         <div class="col-lg-5">
                           <div class="border-end border-none-mobile">
                             <div class="mb-3">
-                              <h5 class="font-medium mb-1">Sender</h5>
-                              <h5 class="font-medium text-gray mb-1">Adnan Mohammed Afana</h5>
-                              <h5 class="font-medium text-gray mb-1">+972597768124</h5>
+                              <h5 class="font-medium mb-1"><u>Sender</u></h5>
+                              <h5 class="font-medium text-gray mb-1">{{ senderFirst }} {{ senderLast }}</h5>
+                              <h5 class="font-medium text-gray mb-1">{{ senderPhone }}</h5>
                             </div>
                             <div class="mb-3">
-                              <h5 class="font-medium mb-1">Recipient</h5>
-                              <h5 class="font-medium text-gray mb-1">Hani Mortaja</h5>
-                              <h5 class="font-medium text-gray mb-1">+715991356854</h5>
+                              <h5 class="font-medium mb-1">Address</h5>
+                              <h5 class="font-medium text-gray mb-1">{{ senderAddress}}</h5>
                             </div>
                           </div>
                         </div>
                         <div class="col-lg-4">
                           <div class="mb-3">
-                            <h5 class="font-medium mb-1">Sender</h5>
-                            <h5 class="font-medium text-gray mb-1">Adnan Mohammed Afana</h5>
-                            <h5 class="font-medium text-gray mb-1">+972597768124</h5>
+                            <h5 class="font-medium mb-1"><u>Recepient</u></h5>
+                            <h5 class="font-medium text-gray mb-1">{{ receiverFirst}} {{ receiverLast }}</h5>
+                            <h5 class="font-medium text-gray mb-1">{{ receiverPhone }}</h5>
                           </div>
                           <div class="mb-3">
-                            <h5 class="font-medium mb-1">Recipient</h5>
-                            <h5 class="font-medium text-gray mb-1">Hani Mortaja</h5>
-                            <h5 class="font-medium text-gray mb-1">+715991356854</h5>
+                            <h5 class="font-medium mb-1">Address</h5>
+                            <h5 class="font-medium text-gray mb-1">{{ receiverAddress}}</h5>
                           </div>
                         </div>
                       </div>
@@ -648,7 +570,7 @@
                       </div>
                       <div class="mb-0">
                         <h6 class="text-gray mb-1">Total Cost</h6>
-                        <h2 class="font-semi-bold text-blue">25.00 AED</h2>
+                        <h2 class="font-semi-bold text-blue">{{ value }} AED</h2>
                       </div>
                     </div>
                   </div>
@@ -680,57 +602,92 @@ export default {
         dictDefaultMessage: "<i class='icon mt-3 fa-thin fa-image fa-xl'></i> <span class='title'>Upload Parcel Image.</span> <span class='text'>max. 3 images can be uploaded</span> "
       },
       center: { lat: 45.508, lng: -73.587 },
+      weight: 0,
       options: [
         'foo',
         'bar',
         'baz'
       ],
+      handleCompanySelection: function () {
+
+      },
       key: 'string',
+      step_count: 0,
+      parcel_booked: false,
+      value: 0,
+      parcelWeight: 0,
+      length: 0,
+      width: 0,
+      height: 0,
+      companyName: '',
+      description: 0,
+      email: '',
+      senderFirst: '',
+      senderLast: '',
+      senderPhone: 0,
+      receiverFirst: '',
+      receiverLast: '',
+      receiverPhone: 0,
+      receiverEmail: '',
+      nextClick: false,
+      maxWeight: 0,
+      parcelValue: 0,
+      senderAddress: '',
+      receiverAddress: '',
       items: [
         {
-          img: require('@/assets/images/file.png'),
+          img: require('@/assets/images/items/fc1.jpeg'),
           title: 'Document size',
-          size: '0 to .5 m3'
+          size: '0 to .5 m3',
+          desc: '5:1.5:3.0:1.3'
         },
         {
-          img: require('@/assets/images/file.png'),
+          img: require('@/assets/images/items/fc2.jpeg'),
           title: 'Document size',
-          size: '0 to .5 m3'
+          size: '0 to 1.0 m3',
+          desc: '10:2.5:3.0:2.3'
         },
         {
-          img: require('@/assets/images/file.png'),
+          img: require('@/assets/images/items/p1.jpeg'),
           title: 'Document size',
-          size: '0 to .5 m3'
+          size: '0 to 1.5 m3',
+          desc: '15:3.5:3.5:1.8'
         },
         {
-          img: require('@/assets/images/file.png'),
+          img: require('@/assets/images/items/p5.jpeg'),
           title: 'Document size',
-          size: '0 to .5 m3'
+          size: '0 to 2.0 m3',
+          desc: '20:4.5:4.0:2.0'
         },
         {
-          img: require('@/assets/images/file.png'),
+          img: require('@/assets/images/items/p6.jpeg'),
           title: 'Document size',
-          size: '0 to .5 m3'
+          size: '0 to 2.5 m3',
+          desc: '25:5.5:3.6:2.5'
         },
         {
-          img: require('@/assets/images/file.png'),
+          img: require('@/assets/images/items/pi4.jpg'),
           title: 'Document size',
-          size: '0 to .5 m3'
+          size: '0 to 3.0 m3',
+          desc: '30:6.5:3.9:3.0'
         },
         {
-          img: require('@/assets/images/file.png'),
+          img: require('@/assets/images/items/p6.jpeg'),
           title: 'Document size',
-          size: '0 to .5 m3'
+          size: '0 to 3.5 m3',
+          desc: '35:7.5:4.0:2.5'
         },
         {
-          img: require('@/assets/images/file.png'),
+          img: require('@/assets/images/items/fc1.jpeg'),
           title: 'Document size',
-          size: '0 to .5 m3'
+          size: '0 to 4.0 m3',
+          desc: '40:8.5:4.5:2.8'
         },
         {
-          img: require('@/assets/images/file.png'),
+          img: require('@/assets/images/items/p1.jpeg'),
           title: 'Document size',
-          size: '0 to .5 m3'
+          size: '0 to 4.5 m3',
+          desc: '45:9.5:5.0:3.3'
         }
       ],
       swiperOption: {
@@ -773,6 +730,20 @@ export default {
     onfunction () {
       this.key = Math.random()
     },
+    fetch: async function () {
+      const res = await fetch('https://www.parcelya.com/api/account.php', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'Application/json'
+        },
+        body: JSON.stringify({ Email: localStorage.getItem('login') })
+      })
+      const data = await res.json()
+      this.senderPhone = data[0].phone
+      this.senderFirst = data[0].first_name
+      this.senderLast = data[0].last_name
+      this.email = localStorage.getItem('login')
+    },
     geolocate: function () {
       navigator.geolocation.getCurrentPosition(position => {
         this.center = {
@@ -780,6 +751,117 @@ export default {
           lng: position.coords.longitude
         }
       })
+    },
+    increment: function () {
+      this.step_count++
+      console.log(this.step_count)
+    },
+    decrement: function () {
+      this.step_count--
+      console.log(this.step_count)
+    },
+    onPrevClick: function (number) {
+      this.step_count--
+    },
+    onNextClick: async function (number) {
+      // if (this.step_count === 0) {
+      console.log('the tab number is: ', number)
+      //   //on first screen
+      // }
+      console.log('the value of company is: ', this.companyName)
+      if (number === 0) {
+        this.parcelWeight = document.getElementById('weight').value
+        this.length = document.getElementById('length').value
+        this.width = document.getElementById('width').value
+        this.value = document.getElementById('parcel-value').value
+        this.height = document.getElementById('height').value
+        this.description = document.getElementById('description').value
+        this.parcelValue = document.getElementById('parcel-value').value
+        this.maxWeight = document.getElementById('est-weight').value.split('-')[1]
+        this.email = localStorage.getItem('login')
+        console.log(this.width)
+        document.getElementById('firstName').value = this.senderFirst
+        document.getElementById('lastName').value = this.senderLast
+        document.getElementById('phone').value = this.senderPhone
+      }
+      if (number === 1) {
+        this.receiverFirst = document.getElementById('receiverFirst').value
+        this.receiverLast = document.getElementById('receiverLast').value
+        this.receiverAddress = document.getElementById('receiver-address').value
+        this.receiverPhone = document.getElementById('receiverPhone').value
+        this.senderAddress = document.getElementById('sender-address').value
+        this.senderFirst = document.getElementById('firstName').value
+        this.senderLast = document.getElementById('lastName').value
+        this.companyName = document.getElementById('companyID').value
+        console.log('the max wieght is: ' + this.maxWeight)
+        console.log('current weight is: ', this.parcelWeight)
+        if (this.parcelWeight >= this.maxWeight) {
+          alert('Weight greater than maximum value. Kindly correct by going back before proceeding.')
+          document.getElementById('prev-button').click()
+        }
+        if (!this.parcelWeight || !this.length || !this.width || !this.height || !this.description || !this.parcelValue || !this.receiverFirst || !this.receiverLast || !this.receiverAddress || !this.receiverPhone || !this.senderAddress || !this.companyName) {
+          alert('Seems some feilds are missing. Kindly check')
+          document.getElementById('prev-button').click()
+        }
+      }
+    },
+    onDone: async function () {
+      const res = await fetch('https://www.parcelya.com/api/parcel-booking.php', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ description: this.description, value: this.value, weight: this.parcelWeight, length: this.length, width: this.width, height: this.height, email: localStorage.getItem('login'), senderFirst: this.senderFirst, senderLast: this.senderLast, senderAddress: this.senderAddress, receiverFirst: this.receiverFirst, receiverLast: this.receiverLast, receiverPhone: this.receiverPhone, receiverAddress: this.receiverAddress, companyId: this.companyName })
+      })
+      const data = await res.json()
+      if (data === 'Done') {
+        this.$router.push({ path: '/parcels-bills' })
+      }
+    },
+    change: function (desc) {
+      var arr = desc.split(':')
+      this.weight = arr[0]
+      document.getElementById('est-weight').value = '0-' + arr[0]
+      document.getElementById('length').value = arr[1]
+      document.getElementById('width').value = arr[2]
+      document.getElementById('height').value = arr[3]
+    },
+    find: function () {
+      if (!localStorage.getItem('login')) {
+        console.log('no login credentials available')
+        this.$router.push({ path: '/' })
+      }
+    },
+    company: async function () {
+      // const handleCompanySelection = (name) => {
+      //   this.companyName = name
+      // }
+      const res = await fetch('https://www.parcelya.com/api/company-fetching.php', {
+        method: 'GET'
+      })
+      const data = await res.json()
+      console.log('the data of the company is: ', data)
+      document.getElementById('company-area').innerHTML =
+      `
+        ${data.map(e => (`
+            <div class="col-sm-6 col-lg-4 col-xxl-3 grid-item item-4" style="position: relative;" @click="${() => { alert('Please write the shipment ID into the input box') }}">
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                ${e.id}
+                <span class="visually-hidden">Shipment id</span>
+              </span>
+              <div class="widget__item-company border rounded-10 mb-4">
+                <div class="widget__item-image border-bottom"><img src="${require('@/assets/images/logo.png')}" alt="parcel logo"></div>
+                <div class="widget__item-content p-3">
+                  <h4 class="mb-2 text-blue">${e.name}</h4>
+                  <div class="data-rating d-flex align-items-center data-rating-lg mb-4">
+                    <span class="d-flex" data-rating="${e.rating}"><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i></span>
+                  </div>
+                  <h6 style="font-size: 0.75rem" class="text-gray"><a href="${e.website}" target="_blank">${e.website}</a></h6>
+                </div>
+              </div>
+            </div>
+          `))} 
+      `
     }
   },
   computed: {
@@ -789,6 +871,9 @@ export default {
   },
   mounted () {
     this.geolocate()
+    this.fetch()
+    this.find()
+    this.company()
   }
 }
 

@@ -19,15 +19,7 @@
                 <h5 class="font-size-14 font-size-lg-16">First Name</h5>
               </div>
               <div class="col-7 col-lg-9">
-                <h5 class="font-size-14 font-size-lg-16 text-gray">Adnan</h5>
-              </div>
-            </div>
-            <div class="row mb-4">
-              <div class="col-5 col-lg-3">
-                <h5 class="font-size-14 font-size-lg-16">Second Name</h5>
-              </div>
-              <div class="col-7 col-lg-9">
-                <h5 class="font-size-14 font-size-lg-16 text-gray">Mohammed</h5>
+                <h5 class="font-size-14 font-size-lg-16 text-gray" id="first_name"></h5>
               </div>
             </div>
             <div class="row mb-4">
@@ -35,7 +27,7 @@
                 <h5 class="font-size-14 font-size-lg-16">Last Name</h5>
               </div>
               <div class="col-7 col-lg-9">
-                <h5 class="font-size-14 font-size-lg-16 text-gray">Afana</h5>
+                <h5 class="font-size-14 font-size-lg-16 text-gray" id="last_name"></h5>
               </div>
             </div>
             <div class="row mb-4">
@@ -43,7 +35,7 @@
                 <h5 class="font-size-14 font-size-lg-16">Email</h5>
               </div>
               <div class="col-7 col-lg-9">
-                <h5 class="font-size-14 font-size-lg-16 text-gray">example@example.com</h5>
+                <h5 class="font-size-14 font-size-lg-16 text-gray" id="email"></h5>
               </div>
             </div>
             <div class="row mb-4">
@@ -51,7 +43,7 @@
                 <h5 class="font-size-14 font-size-lg-16">Country</h5>
               </div>
               <div class="col-7 col-lg-9">
-                <h5 class="font-size-14 font-size-lg-16 text-gray">United Arab Emirates</h5>
+                <h5 class="font-size-14 font-size-lg-16 text-gray" id="country"></h5>
               </div>
             </div>
             <div class="row mb-4">
@@ -59,7 +51,7 @@
                 <h5 class="font-size-14 font-size-lg-16">City</h5>
               </div>
               <div class="col-7 col-lg-9">
-                <h5 class="font-size-14 font-size-lg-16 text-gray">Dubai</h5>
+                <h5 class="font-size-14 font-size-lg-16 text-gray" id="city"></h5>
               </div>
             </div>
             <div class="row mb-4">
@@ -67,7 +59,7 @@
                 <h5 class="font-size-14 font-size-lg-16">Building Num.</h5>
               </div>
               <div class="col-7 col-lg-9">
-                <h5 class="font-size-14 font-size-lg-16 text-gray">G-50220</h5>
+                <h5 class="font-size-14 font-size-lg-16 text-gray" id="building_number"></h5>
               </div>
             </div>
             <div class="row mb-4">
@@ -75,7 +67,7 @@
                 <h5 class="font-size-14 font-size-lg-16">Flat num.</h5>
               </div>
               <div class="col-7 col-lg-9">
-                <h5 class="font-size-14 font-size-lg-16 text-gray">Ground floor</h5>
+                <h5 class="font-size-14 font-size-lg-16 text-gray" id="flat_number"></h5>
               </div>
             </div>
             <div class="row mb-4">
@@ -83,17 +75,17 @@
                 <h5 class="font-size-14 font-size-lg-16">Address</h5>
               </div>
               <div class="col-7 col-lg-9">
-                <h5 class="font-size-14 font-size-lg-16 text-gray">Afana Bldg., Awni Doher st., Gaza, Rafah, Palestine</h5>
+                <h5 class="font-size-14 font-size-lg-16 text-gray" id="address"></h5>
               </div>
             </div>
-            <div class="row mb-4">
+            <!-- <div class="row mb-4">
               <div class="col-5 col-lg-3">
                 <h5 class="font-size-14 font-size-lg-16">Password</h5>
               </div>
               <div class="col-7 col-lg-9">
                 <h5 class="font-size-14 font-size-lg-16"><a class="text-blue" href="">Change Password </a></h5>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -104,11 +96,55 @@
 <script>
 
 import ProfileAccount from '@/components/account/ProfileAccount'
+import { store } from '../../store'
 
 export default {
   name: 'IndexView',
   components: {
     ProfileAccount
+  },
+  methods: {
+    find: async function () {
+      console.log(store.status)
+      if (!localStorage.getItem('login')) {
+        console.log('no login credentials available')
+        this.$router.push({ path: '/' })
+      } else {
+        const res = await fetch(
+          'https://www.parcelya.com/api/account.php',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ Email: localStorage.getItem('login') })
+          }
+        )
+        const data = await res.json()
+        document.getElementById('first_name').innerText = data[0].first_name
+        document.getElementById('last_name').innerText = data[0].last_name
+        document.getElementById('email').innerText = data[0].email
+        if (data[0].address === '') {
+          document.getElementById('address').innerHTML = '<p style="opacity: 0.4">please edit your information</p>'
+          document.getElementById('building_number').innerHTML = '<p style="opacity: 0.4">please edit your information</p>'
+          document.getElementById('flat_number').innerHTML = '<p style="opacity: 0.4">please edit your information</p>'
+          document.getElementById('city').innerHTML = '<p style="opacity: 0.4">please edit your information</p>'
+          document.getElementById('country').innerHTML = '<p style="opacity: 0.4">please edit your information</p>'
+        } else {
+          document.getElementById('address').innerText = data[0].address
+          document.getElementById('building_number').innerText = data[0].building_number
+          document.getElementById('flat_number').innerText = data[0].flat_number
+          document.getElementById('city').innerText = data[0].city
+          document.getElementById('country').innerText = data[0].country
+        }
+      }
+    }
+  },
+  mounted () {
+    // if (!localStorage.getItem('login')) {
+    //   console.log('not autheticated', this.authenticated)
+    // }
+    this.find()
   }
 }
 

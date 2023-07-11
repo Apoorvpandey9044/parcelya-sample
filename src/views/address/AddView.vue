@@ -8,65 +8,65 @@
             <div class="d-flex align-items-center justify-content-between mb-4">
               <h4 class="text-gray font-size-14 font-size-lg-18">Addresses</h4>
             </div>
-            <form action="">
+            <form action="" @submit.prevent="add">
               <div class="row">
                 <div class="col-lg-6">
                   <div class="form-group">
-                    <label>Country</label>
+                    <label>Country*</label>
                     <div class="input-icon left">
-                      <input class="form-control font-medium" name="country" type="text" value="United Arab Emirates">
+                      <input id="country" class="form-control font-medium" name="country" type="text" value="United Arab Emirates" required="true">
                       <div class="icon">
                         <div class="symbol symbol-25"><img src="@/assets/images/flag.png" alt=""></div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-lg-6">
+                <!-- <div class="col-lg-6">
                   <div class="form-group">
                     <label>Country</label>
                     <v-select :options="options" placeholder="Select a Country"></v-select>
                   </div>
-                </div>
+                </div> -->
                 <div class="col-lg-6">
                   <div class="form-group">
                     <label>Region</label>
-                    <v-select :options="options" placeholder="Select a Region"></v-select>
+                    <input id="region" class="form-control font-medium" name="address" type="text" placeholder="Region">
                   </div>
                 </div>
                 <div class="col-lg-6">
                   <div class="form-group">
-                    <label>Street</label>
-                    <v-select :options="options" placeholder="Select a Street"></v-select>
+                    <label>Street *</label>
+                    <input id="street" class="form-control font-medium" name="address" type="text" placeholder="Address" required="true">
                   </div>
                 </div>
                 <div class="col-lg-12">
                   <div class="form-group">
-                    <label>Address</label>
-                    <input class="form-control font-medium" name="address" type="text" placeholder="Address">
+                    <label>Address *</label>
+                    <input id="address" class="form-control font-medium" name="address" type="text" placeholder="Address" required="true">
                   </div>
                 </div>
                 <div class="col-lg-4">
                   <div class="form-group">
-                    <label>Building Num.</label>
-                    <input class="form-control font-medium" name="building" type="text" placeholder="ex: G-2500">
+                    <label>Building Num. *</label>
+                    <input id="building_number" class="form-control font-medium" name="building" type="text" placeholder="ex: G-2500" required="true">
                   </div>
                 </div>
                 <div class="col-lg-4">
                   <div class="form-group">
-                    <label>Floor num. </label>
-                    <input class="form-control font-medium" name="floor" type="text" placeholder="ex: G-2500">
+                    <label>Floor num. * </label>
+                    <input id="floor_number" class="form-control font-medium" name="floor" type="text" placeholder="ex: G-2500" required="true">
                   </div>
                 </div>
                 <div class="col-lg-4">
                   <div class="form-group">
-                    <label>Flat num.</label>
-                    <input class="form-control font-medium" name="flat" type="text" placeholder="ex: G-2500">
+                    <label>Flat num. *</label>
+                    <input id="flat_number" class="form-control font-medium" name="flat" type="text" placeholder="ex: G-2500" required="true">
                   </div>
                 </div>
                 <div class="col-lg-6">
                   <div class="form-group">
-                    <label>Address Label</label>
-                    <input class="form-control font-medium" name="addressLabel" type="text" placeholder="Work, home, store,..etc">
+                    <label>Address Label *</label>
+                    <input id="address_label" class="form-control font-medium" name="addressLabel" type="text" placeholder="Work, home, store,..etc" required="true">
                     <small class="d-block">You will acess this address using this label</small>
                   </div>
                 </div>
@@ -92,13 +92,23 @@ export default {
   components: {
     ProfileAccount
   },
-  data () {
-    return {
-      options: [
-        'foo',
-        'bar',
-        'baz'
-      ]
+  methods: {
+    add: async function () {
+      const res = await fetch(
+        'https://www.parcelya.com/api/address-add.php',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ country: document.getElementById('country').value, region: document.getElementById('region').value, street: document.getElementById('street').value, address: document.getElementById('address').value, building_number: document.getElementById('building_number').value, flat_number: document.getElementById('flat_number').value, floor_number: document.getElementById('floor_number').value, address_label: document.getElementById('address_label').value, email: localStorage.getItem('login') })
+        }
+      )
+      const data = await res.json()
+      console.log(data)
+      if (data === 'Done') {
+        this.$router.push({ path: '/address' })
+      }
     }
   }
 }

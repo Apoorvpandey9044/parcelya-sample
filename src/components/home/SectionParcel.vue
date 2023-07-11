@@ -1,5 +1,5 @@
 <template>
-<section class="section section-new-parcel pt-0">
+<section class="section section-new-parcel pt-0 my-1">
   <div class="container pb-lg-4">
     <div class="bg-gray rounded-5 p-2">
       <ul class="tab-parcel d-flex">
