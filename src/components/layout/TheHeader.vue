@@ -59,6 +59,7 @@
                   <a class="menu_link text-dark" @click="$bvModal.show('bv-modal-login')">Login</a>
                 </li>
                 <li class="menu_item mx-lg-3"><a class="btn btn-blue" @click="$bvModal.show('bv-modal-register')">Create account</a></li>
+                <li class="menu_item mx-lg-3"><a class="btn btn-outline-blue" href="https://company-registration-three.vercel.app/" target="_blank">Company Register</a></li>
               </ul>
             </div>
           </div>

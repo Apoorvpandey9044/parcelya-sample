@@ -1991,6 +1991,16 @@ html[dir="rtl"] .input-icon.left .icon {
   border-color: #35498E;
 }
 
+.btn-outline-blue{
+  color: #35498E;
+  border: 1px solid #35498E;
+  background-color: white;
+}
+
+.btn-outline-blue:hover{
+  color: #fff;
+  background: #35498E;
+}
 .btn-blue:hover, .btn-blue:focus {
   color: #fff;
   background: #293870;
