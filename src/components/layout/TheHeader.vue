@@ -76,7 +76,7 @@
             <h3 class="mb-2 font-medium modal-title">Welcome to Parcelya</h3>
             <h6 class="mb-3 text-gray">Login and check your updates</h6>
             <button class="btn-close" id="login-close-button" type="button" @click="$bvModal.hide('bv-modal-login')"></button>
-            <form action="" @submit.prevent="login">
+            <form>
               <div class="form-group">
                 <label v-if="loginEmailValid" style="color: red">Enter Valid Email</label>
                 <label v-else-if="loginalreadyEmailValid" style="color: red">Email Not Registered</label>
